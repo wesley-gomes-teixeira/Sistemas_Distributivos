@@ -1,0 +1,141 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: assetflow-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  users-db:
+    image: postgres:16-alpine
+    container_name: assetflow-users-db
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - users_data:/var/lib/postgresql/data
+
+  users-service:
+    build:
+      context: ./users-service
+    container_name: assetflow-users-service
+    environment:
+      PORT: 3001
+      DB_HOST: users-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: users_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    ports:
+      - "3001:3001"
+    depends_on:
+      - users-db
+      - rabbitmq
+
+  assets-db:
+    image: postgres:16-alpine
+    container_name: assetflow-assets-db
+    environment:
+      POSTGRES_DB: assets_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - assets_data:/var/lib/postgresql/data
+
+  assets-service:
+    build:
+      context: ./assets-service
+    container_name: assetflow-assets-service
+    environment:
+      PORT: 3002
+      DB_HOST: assets-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: assets_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    ports:
+      - "3002:3002"
+    depends_on:
+      - assets-db
+      - rabbitmq
+
+  tickets-db:
+    image: postgres:16-alpine
+    container_name: assetflow-tickets-db
+    environment:
+      POSTGRES_DB: tickets_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - tickets_data:/var/lib/postgresql/data
+
+  tickets-service:
+    build:
+      context: ./tickets-service
+    container_name: assetflow-tickets-service
+    environment:
+      PORT: 3003
+      DB_HOST: tickets-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: tickets_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    ports:
+      - "3003:3003"
+    depends_on:
+      - tickets-db
+      - rabbitmq
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: assetflow-gateway-service
+    environment:
+      PORT: 3000
+      JWT_SECRET: assetflow-secret
+      USERS_SERVICE_URL: http://users-service:3001
+      ASSETS_SERVICE_URL: http://assets-service:3002
+      TICKETS_SERVICE_URL: http://tickets-service:3003
+    ports:
+      - "3000:3000"
+    depends_on:
+      - users-service
+      - assets-service
+      - tickets-service
+
+  frontend-service:
+    build:
+      context: ./frontend-service
+    container_name: assetflow-frontend-service
+    environment:
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - gateway-service
+
+  adminer-service:
+    image: adminer:4.8.1
+    container_name: assetflow-adminer-service
+    ports:
+      - "8081:8080"
+    depends_on:
+      - users-db
+      - assets-db
+      - tickets-db
+  
+volumes:
+  users_data:
+  assets_data:
+  tickets_data:
+  

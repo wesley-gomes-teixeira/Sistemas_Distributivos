@@ -1,0 +1,17 @@
+{
+  "name": "assetflow-frontend-service",
+  "version": "1.0.0",
+  "description": "Frontend basico do sistema AssetFlow.",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

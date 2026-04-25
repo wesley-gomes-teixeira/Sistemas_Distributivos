@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AssetFlow</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section id="login-screen" class="login-screen">
+      <div class="login-shell">
+        <div class="login-brand">
+          <p class="eyebrow">AssetFlow Platform</p>
+          <h1>Acesse a plataforma e acompanhe a operacao de ativos de TI com mais clareza.</h1>
+          <p>
+            Esta interface foi organizada para apresentar o fluxo do sistema de forma objetiva.
+            Apos o acesso, os modulos sao liberados conforme o cadastro de usuarios, ativos e
+            chamados evolui.
+          </p>
+          <div class="login-highlights">
+            <div class="highlight-card">
+              <span>Gateway</span>
+              <strong id="login-gateway-url">http://localhost:3000/api</strong>
+            </div>
+            <div class="highlight-card warm">
+              <span>Jornada operacional</span>
+              <strong>Usuarios -> Ativos -> Chamados</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-panel">
+          <div class="panel-kicker">Acesso</div>
+          <h2>Entrar na plataforma</h2>
+          <p class="login-help">
+            Informe suas credenciais para acessar o ambiente. Caso ainda nao possua conta,
+            utilize a opcao de cadastro.
+          </p>
+          <form id="login-form" class="form">
+            <input id="login-name" placeholder="Nome completo" required />
+            <input id="login-email" type="email" placeholder="Email corporativo" required />
+            <input id="login-password" type="password" placeholder="Senha" required />
+            <div class="actions">
+              <button type="submit">Entrar</button>
+              <button id="register-button" type="button" class="ghost">Criar conta</button>
+            </div>
+          </form>
+          <p id="login-error" class="login-error"></p>
+        </div>
+      </div>
+    </section>
+
+    <main id="app-shell" class="app-shell hidden">
+      <aside class="sidebar">
+        <div>
+          <p class="eyebrow">AssetFlow</p>
+          <h2 class="sidebar-title">Central de Operacoes</h2>
+          <p class="sidebar-copy">
+            Painel executivo com visao por etapas para acompanhar a evolucao operacional do sistema.
+          </p>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-button active" data-view="dashboard">Dashboard</button>
+          <button class="nav-button" data-view="users">Usuarios</button>
+          <button class="nav-button" data-view="assets">Ativos</button>
+          <button class="nav-button" data-view="tickets">Chamados</button>
+        </nav>
+
+        <div class="sidebar-progress">
+          <span>Etapa atual</span>
+          <strong id="sidebar-stage">Inicializando...</strong>
+          <p id="sidebar-stage-copy">
+            Este resumo e atualizado automaticamente de acordo com o progresso do ambiente.
+          </p>
+        </div>
+
+        <div class="sidebar-user">
+          <span>Usuario autenticado</span>
+          <strong id="current-user-name">Convidado</strong>
+          <p id="current-user-email">-</p>
+          <p id="current-user-role">Perfil: -</p>
+          <button id="logout-button" class="ghost wide">Encerrar sessao</button>
+        </div>
+      </aside>
+
+      <section class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Ambiente ativo</p>
+            <h1 id="view-title">Dashboard</h1>
+          </div>
+          <div class="topbar-card">
+            <span>Gateway</span>
+            <strong id="gateway-url">http://localhost:3000/api</strong>
+          </div>
+        </header>
+
+        <section id="view-dashboard" class="view active">
+          <section class="hero">
+            <div class="hero-copy">
+              <p class="eyebrow">Visao operacional</p>
+              <h2>Monitore a estrutura da plataforma e identifique rapidamente os proximos passos.</h2>
+              <p class="lead">
+                O AssetFlow organiza a operacao em tres etapas: usuarios, ativos e chamados.
+              </p>
+            </div>
+            <aside class="hero-metrics">
+              <div class="metric-card feature">
+                <span class="metric-label">Panorama</span>
+                <strong id="health-label">Sincronizando dados...</strong>
+                <p>Indicador consolidado do volume cadastrado e do nivel atual de maturidade.</p>
+              </div>
+              <div class="metric-grid">
+                <div class="metric-card">
+                  <span class="metric-label">Usuarios</span>
+                  <strong id="users-count">0</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">Ativos</span>
+                  <strong id="assets-count">0</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">Chamados</span>
+                  <strong id="tickets-count">0</strong>
+                </div>
+                <div class="metric-card accent">
+                  <span class="metric-label">Cobertura</span>
+                  <strong id="coverage-label">0 ativos por usuario</strong>
+                </div>
+              </div>
+            </aside>
+          </section>
+
+          <section class="overview">
+            <article class="overview-card">
+              <span>Atendimento</span>
+              <strong id="ticket-highlight">Nenhum chamado registrado</strong>
+              <p>Acompanhe o desempenho do suporte e o volume de demandas registradas.</p>
+            </article>
+            <article class="overview-card">
+              <span>Inventario</span>
+              <strong id="asset-highlight">Nenhum ativo vinculado</strong>
+              <p>Verifique se a base de ativos acompanha a necessidade operacional dos usuarios.</p>
+            </article>
+            <article class="overview-card">
+              <span>Prioridade recomendada</span>
+              <strong id="next-step">Cadastre o primeiro usuario para iniciar o fluxo.</strong>
+              <p>Os modulos sao disponibilizados progressivamente conforme a operacao evolui.</p>
+            </article>
+          </section>
+        </section>
+
+        <section id="view-users" class="view">
+          <div class="section-head">
+            <div>
+              <p class="panel-kicker">Etapa 1</p>
+              <h2>Cadastro de Usuarios</h2>
+            </div>
+            <span class="badge">People</span>
+          </div>
+          <div class="section-layout">
+            <article class="panel">
+              <div id="users-readonly" class="lock-banner hidden">
+                Seu perfil possui acesso somente leitura a este modulo.
+              </div>
+              <form id="users-form" class="form">
+                <input type="hidden" id="user-id" />
+                <input id="user-name" placeholder="Nome do usuario" required />
+                <input id="user-email" type="email" placeholder="Email corporativo" required />
+                <select id="user-role">
+                  <option value="analyst">Analista</option>
+                  <option value="viewer">Visualizador</option>
+                  <option value="admin">Administrador</option>
+                </select>
+                <input id="user-password" type="password" placeholder="Senha (obrigatoria no novo cadastro)" />
+                <div class="actions">
+                  <button type="submit">Salvar usuario</button>
+                  <button type="button" class="ghost" data-clear="users">Limpar campos</button>
+                </div>
+              </form>
+            </article>
+            <article class="panel">
+              <h3 class="panel-subtitle">Usuarios registrados</h3>
+              <div class="toolbar">
+                <input id="users-search" placeholder="Buscar por nome ou email" />
+              </div>
+              <div id="users-list" class="list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="view-assets" class="view">
+          <div class="section-head">
+            <div>
+              <p class="panel-kicker">Etapa 2</p>
+              <h2>Cadastro de Ativos</h2>
+            </div>
+            <span class="badge">Hardware</span>
+          </div>
+          <div id="assets-lock" class="lock-banner hidden">
+            O modulo de ativos sera liberado apos o cadastro do primeiro usuario.
+          </div>
+          <div class="section-layout">
+            <article class="panel">
+              <div id="assets-readonly" class="lock-banner hidden">
+                Seu perfil possui acesso somente leitura a este modulo.
+              </div>
+              <form id="assets-form" class="form">
+                <input type="hidden" id="asset-id" />
+                <input id="asset-name" placeholder="Nome do ativo" required />
+                <input id="asset-type" placeholder="Tipo do ativo" required />
+                <select id="asset-status" required>
+                  <option value="disponivel">Disponivel</option>
+                  <option value="em uso">Em uso</option>
+                  <option value="em manutencao">Em manutencao</option>
+                  <option value="reservado">Reservado</option>
+                  <option value="desativado">Desativado</option>
+                </select>
+                <input id="asset-user-id" type="number" placeholder="ID do usuario responsavel" required />
+                <div class="actions">
+                  <button type="submit">Salvar ativo</button>
+                  <button type="button" class="ghost" data-clear="assets">Limpar campos</button>
+                </div>
+              </form>
+            </article>
+            <article class="panel">
+              <h3 class="panel-subtitle">Ativos registrados</h3>
+              <div class="toolbar">
+                <input id="assets-search" placeholder="Buscar por nome, tipo ou responsavel" />
+                <select id="assets-filter-status">
+                  <option value="">Todos os status</option>
+                  <option value="disponivel">Disponivel</option>
+                  <option value="em uso">Em uso</option>
+                  <option value="em manutencao">Em manutencao</option>
+                  <option value="reservado">Reservado</option>
+                  <option value="pendente de reassociacao">Pendente de reassociacao</option>
+                  <option value="desativado">Desativado</option>
+                </select>
+              </div>
+              <div id="assets-list" class="list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="view-tickets" class="view">
+          <div class="section-head">
+            <div>
+              <p class="panel-kicker">Etapa 3</p>
+              <h2>Cadastro de Chamados</h2>
+            </div>
+            <span class="badge">Support</span>
+          </div>
+          <div id="tickets-lock" class="lock-banner hidden">
+            O modulo de chamados sera liberado apos o cadastro do primeiro ativo.
+          </div>
+          <div class="section-layout">
+            <article class="panel">
+              <div id="tickets-readonly" class="lock-banner hidden">
+                Seu perfil possui acesso somente leitura a este modulo.
+              </div>
+              <form id="tickets-form" class="form">
+                <input type="hidden" id="ticket-id" />
+                <input id="ticket-title" placeholder="Titulo do chamado" required />
+                <textarea id="ticket-description" placeholder="Descricao do problema" required></textarea>
+                <select id="ticket-status" required>
+                  <option value="aberto">Aberto</option>
+                  <option value="em andamento">Em andamento</option>
+                  <option value="aguardando ativo">Aguardando ativo</option>
+                  <option value="resolvido">Resolvido</option>
+                  <option value="fechado">Fechado</option>
+                </select>
+                <input id="ticket-asset-id" type="number" placeholder="ID do ativo relacionado" required />
+                <div class="actions">
+                  <button type="submit">Salvar chamado</button>
+                  <button type="button" class="ghost" data-clear="tickets">Limpar campos</button>
+                </div>
+              </form>
+            </article>
+            <article class="panel">
+              <h3 class="panel-subtitle">Chamados registrados</h3>
+              <div class="toolbar">
+                <input id="tickets-search" placeholder="Buscar por titulo, descricao ou ativo" />
+                <select id="tickets-filter-status">
+                  <option value="">Todos os status</option>
+                  <option value="aberto">Aberto</option>
+                  <option value="em andamento">Em andamento</option>
+                  <option value="aguardando ativo">Aguardando ativo</option>
+                  <option value="resolvido">Resolvido</option>
+                  <option value="fechado">Fechado</option>
+                </select>
+              </div>
+              <div id="tickets-list" class="list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="status-bar">
+          <strong>Status do sistema</strong>
+          <span id="status-message">Carregando dados...</span>
+        </section>
+      </section>
+    </main>
+
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

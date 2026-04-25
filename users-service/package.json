@@ -1,0 +1,20 @@
+{
+  "name": "assetflow-users-service",
+  "version": "1.0.0",
+  "description": "Microsservico de usuarios do sistema AssetFlow.",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "pg": "^8.13.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

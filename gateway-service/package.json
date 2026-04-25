@@ -1,0 +1,18 @@
+{
+  "name": "assetflow-gateway-service",
+  "version": "1.0.0",
+  "description": "API Gateway do sistema AssetFlow.",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
