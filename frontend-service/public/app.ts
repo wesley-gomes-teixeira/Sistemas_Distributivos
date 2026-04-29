@@ -1,7 +1,7 @@
 interface SessionData {
   name: string;
   email: string;
-  role: "admin" | "analyst" | "viewer";
+  role: "admin" | "analyst" | "user";
   token: string;
 }
 
@@ -37,6 +37,7 @@ const authBaseUrl = "http://localhost:3000/auth";
 const sessionKey = "assetflow-session";
 
 const textElement = (id: string) => document.getElementById(id) as HTMLElement;
+const maybeTextElement = (id: string) => document.getElementById(id) as HTMLElement | null;
 const inputElement = (id: string) => document.getElementById(id) as HTMLInputElement;
 const selectElement = (id: string) => document.getElementById(id) as HTMLSelectElement;
 const textareaElement = (id: string) => document.getElementById(id) as HTMLTextAreaElement;
@@ -66,13 +67,21 @@ const usersReadonly = textElement("users-readonly");
 const assetsReadonly = textElement("assets-readonly");
 const ticketsReadonly = textElement("tickets-readonly");
 
-textElement("gateway-url").textContent = gatewayBaseUrl;
-textElement("login-gateway-url").textContent = gatewayBaseUrl;
+const gatewayUrlLabel = maybeTextElement("gateway-url");
+const loginGatewayUrlLabel = maybeTextElement("login-gateway-url");
+
+if (gatewayUrlLabel) {
+  gatewayUrlLabel.textContent = gatewayBaseUrl;
+}
+
+if (loginGatewayUrlLabel) {
+  loginGatewayUrlLabel.textContent = gatewayBaseUrl;
+}
 
 const roleLabels: Record<SessionData["role"], string> = {
   admin: "Administrador",
   analyst: "Analista",
-  viewer: "Visualizador"
+  user: "Usuario"
 };
 
 const cache: {
@@ -111,7 +120,7 @@ function getSession(): SessionData | null {
 }
 
 function getCurrentRole(): SessionData["role"] {
-  return getSession()?.role || "viewer";
+  return getSession()?.role || "user";
 }
 
 function canManageUsers(): boolean {
@@ -120,6 +129,25 @@ function canManageUsers(): boolean {
 
 function canManageOperations(): boolean {
   return ["admin", "analyst"].includes(getCurrentRole());
+}
+
+function canCreateTickets(): boolean {
+  return ["admin", "analyst", "user"].includes(getCurrentRole());
+}
+
+function shouldShowTicketNotice(): boolean {
+  return getCurrentRole() === "user";
+}
+
+function parseOptionalNumber(value: string): number | null {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
+  return Number.isNaN(parsed) ? null : parsed;
 }
 
 function clearSession(): void {
@@ -206,11 +234,11 @@ function updateNavigationLocks(): void {
   ticketsNav.disabled = !assetsReady;
   usersFormButton.disabled = !canManageUsers();
   assetsFormButton.disabled = !usersReady || !canOperate;
-  ticketsFormButton.disabled = !assetsReady || !canOperate;
+  ticketsFormButton.disabled = !assetsReady || !canCreateTickets();
 
   usersReadonly.classList.toggle("hidden", canManageUsers());
   assetsReadonly.classList.toggle("hidden", canOperate);
-  ticketsReadonly.classList.toggle("hidden", canOperate);
+  ticketsReadonly.classList.toggle("hidden", !shouldShowTicketNotice());
   assetsLock.classList.toggle("hidden", usersReady);
   ticketsLock.classList.toggle("hidden", assetsReady);
 
@@ -224,10 +252,10 @@ function updateNavigationLocks(): void {
   selectElement("asset-status").disabled = !canOperate;
   inputElement("asset-user-id").disabled = !canOperate;
 
-  inputElement("ticket-title").disabled = !canOperate;
-  textareaElement("ticket-description").disabled = !canOperate;
-  selectElement("ticket-status").disabled = !canOperate;
-  inputElement("ticket-asset-id").disabled = !canOperate;
+  inputElement("ticket-title").disabled = !canCreateTickets();
+  textareaElement("ticket-description").disabled = !canCreateTickets();
+  selectElement("ticket-status").disabled = !canCreateTickets();
+  inputElement("ticket-asset-id").disabled = !canCreateTickets();
 
   if (!usersReady && currentView === "assets") {
     switchView("users");
@@ -592,12 +620,11 @@ async function loadAll(): Promise<void> {
 formElement("login-form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const name = inputElement("login-name").value.trim();
   const email = inputElement("login-email").value.trim();
   const password = inputElement("login-password").value.trim();
 
-  if (!name || !email || password.length < 4) {
-    loginError.textContent = "Informe nome, email e uma senha com no minimo 4 caracteres.";
+  if (!email || password.length < 4) {
+    loginError.textContent = "Informe email e uma senha com no minimo 4 caracteres.";
     return;
   }
 
@@ -740,7 +767,7 @@ formElement("assets-form").addEventListener("submit", async (event) => {
     name: inputElement("asset-name").value,
     type: inputElement("asset-type").value,
     status: selectElement("asset-status").value,
-    userId: Number(inputElement("asset-user-id").value)
+    userId: parseOptionalNumber(inputElement("asset-user-id").value)
   };
 
   try {
@@ -758,8 +785,8 @@ formElement("assets-form").addEventListener("submit", async (event) => {
 formElement("tickets-form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  if (!canManageOperations()) {
-    setStatus("Seu perfil possui acesso somente leitura ao modulo de chamados.");
+  if (!canCreateTickets()) {
+    setStatus("Seu perfil nao possui permissao para abrir chamados.");
     return;
   }
 
@@ -774,7 +801,7 @@ formElement("tickets-form").addEventListener("submit", async (event) => {
     title: inputElement("ticket-title").value,
     description: textareaElement("ticket-description").value,
     status: selectElement("ticket-status").value,
-    assetId: Number(inputElement("ticket-asset-id").value)
+    assetId: parseOptionalNumber(inputElement("ticket-asset-id").value)
   };
 
   try {

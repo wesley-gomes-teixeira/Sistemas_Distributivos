@@ -48,6 +48,12 @@ async function initializeDatabase(): Promise<void> {
     ALTER TABLE users
     ADD COLUMN IF NOT EXISTS role VARCHAR(30) NOT NULL DEFAULT 'analyst'
   `);
+
+  await pool.query(`
+    UPDATE users
+    SET role = 'user'
+    WHERE role = 'viewer'
+  `);
 }
 
 module.exports = pool;

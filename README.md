@@ -91,7 +91,7 @@ rabbitmq
 - Autorizacao:
   - `admin`: CRUD completo de usuarios, ativos e chamados
   - `analyst`: leitura de usuarios e CRUD de ativos/chamados
-  - `viewer`: acesso somente leitura
+  - `user`: acesso somente leitura
 - Rotas:
   - `POST /auth/register`
   - `POST /auth/login`

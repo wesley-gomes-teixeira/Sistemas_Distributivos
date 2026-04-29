@@ -9,7 +9,7 @@ import type {
   UserRole
 } from "../types";
 
-const allowedRoles: UserRole[] = ["admin", "analyst", "viewer"];
+const allowedRoles: UserRole[] = ["admin", "analyst", "user"];
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Erro inesperado.";
@@ -130,7 +130,7 @@ async function deleteUser(req: RequestLike, res: ResponseLike): Promise<Response
 async function registerUser(req: RequestLike, res: ResponseLike): Promise<ResponseLike> {
   try {
     const totalUsers = await userModel.countUsers();
-    req.body.role = totalUsers === 0 ? "admin" : "analyst";
+    req.body.role = totalUsers === 0 ? "admin" : "user";
     return createUser(req, res);
   } catch (error) {
     return res.status(500).json({

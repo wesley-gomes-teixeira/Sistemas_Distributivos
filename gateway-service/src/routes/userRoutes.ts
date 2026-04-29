@@ -7,7 +7,7 @@ const { ensureUserDeleteAllowed } = require("../middlewares/businessRulesMiddlew
 const router = express.Router();
 const usersServiceUrl = process.env.USERS_SERVICE_URL || "http://localhost:3001";
 
-router.get("/users", authorizeRoles("admin", "analyst", "viewer"), (req, res) =>
+router.get("/users", authorizeRoles("admin", "analyst", "user"), (req, res) =>
   forwardRequest(req, res, usersServiceUrl)
 );
 router.post("/users", authorizeRoles("admin"), (req, res) =>

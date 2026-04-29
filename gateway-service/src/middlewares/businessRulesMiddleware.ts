@@ -22,6 +22,15 @@ function normalizeStatus(value: unknown): string {
   return String(value || "").trim().toLowerCase();
 }
 
+function normalizeOptionalRelationId(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? Number.NaN : parsed;
+}
+
 async function validateAssetPayload(
   req: RequestLike,
   res: ResponseLike,
@@ -29,10 +38,11 @@ async function validateAssetPayload(
 ): Promise<ResponseLike | void> {
   try {
     const { name, type, status, userId } = req.body;
+    const normalizedUserId = normalizeOptionalRelationId(userId);
 
-    if (!name || !type || !status || userId === undefined) {
+    if (!name || !type || !status) {
       return res.status(400).json({
-        message: "Os campos name, type, status e userId sao obrigatorios."
+        message: "Os campos name, type e status sao obrigatorios."
       });
     }
 
@@ -42,8 +52,19 @@ async function validateAssetPayload(
       });
     }
 
+    if (Number.isNaN(normalizedUserId)) {
+      return res.status(400).json({
+        message: "O campo userId precisa ser numerico quando informado."
+      });
+    }
+
+    if (normalizedUserId === null) {
+      req.body.userId = null;
+      return next();
+    }
+
     const users = await getUsers();
-    const userExists = users.some((user) => user.id === Number(userId));
+    const userExists = users.some((user) => user.id === normalizedUserId);
 
     if (!userExists) {
       return res.status(400).json({
@@ -51,6 +72,7 @@ async function validateAssetPayload(
       });
     }
 
+    req.body.userId = normalizedUserId;
     return next();
   } catch (error) {
     const serviceError = error as ServiceError;
@@ -68,10 +90,11 @@ async function validateTicketPayload(
 ): Promise<ResponseLike | void> {
   try {
     const { title, description, status, assetId } = req.body;
+    const normalizedAssetId = normalizeOptionalRelationId(assetId);
 
-    if (!title || !description || !status || assetId === undefined) {
+    if (!title || !description || !status) {
       return res.status(400).json({
-        message: "Os campos title, description, status e assetId sao obrigatorios."
+        message: "Os campos title, description e status sao obrigatorios."
       });
     }
 
@@ -81,8 +104,19 @@ async function validateTicketPayload(
       });
     }
 
+    if (Number.isNaN(normalizedAssetId)) {
+      return res.status(400).json({
+        message: "O campo assetId precisa ser numerico quando informado."
+      });
+    }
+
+    if (normalizedAssetId === null) {
+      req.body.assetId = null;
+      return next();
+    }
+
     const assets = await getAssets();
-    const assetExists = assets.some((asset) => asset.id === Number(assetId));
+    const assetExists = assets.some((asset) => asset.id === normalizedAssetId);
 
     if (!assetExists) {
       return res.status(400).json({
@@ -90,6 +124,7 @@ async function validateTicketPayload(
       });
     }
 
+    req.body.assetId = normalizedAssetId;
     return next();
   } catch (error) {
     const serviceError = error as ServiceError;

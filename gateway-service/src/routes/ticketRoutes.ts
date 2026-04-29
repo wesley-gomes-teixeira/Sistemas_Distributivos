@@ -7,10 +7,10 @@ const { validateTicketPayload } = require("../middlewares/businessRulesMiddlewar
 const router = express.Router();
 const ticketsServiceUrl = process.env.TICKETS_SERVICE_URL || "http://localhost:3003";
 
-router.get("/tickets", authorizeRoles("admin", "analyst", "viewer"), (req, res) =>
+router.get("/tickets", authorizeRoles("admin", "analyst", "user"), (req, res) =>
   forwardRequest(req, res, ticketsServiceUrl)
 );
-router.post("/tickets", authorizeRoles("admin", "analyst"), validateTicketPayload, (req, res) =>
+router.post("/tickets", authorizeRoles("admin", "analyst", "user"), validateTicketPayload, (req, res) =>
   forwardRequest(req, res, ticketsServiceUrl)
 );
 router.put("/tickets/:id", authorizeRoles("admin", "analyst"), validateTicketPayload, (req, res) =>
