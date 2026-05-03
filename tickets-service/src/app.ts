@@ -9,7 +9,7 @@ app.use(express.json());
 app.get("/", (_req, res) => {
   res.status(200).json({
     service: "tickets-service",
-    message: "Microsservico de chamados em execucao."
+    message: "Microsserviço de chamados em execução."
   });
 });
 

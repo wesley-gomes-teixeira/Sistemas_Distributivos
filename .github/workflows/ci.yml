@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  service-builds:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - users-service
+          - assets-service
+          - tickets-service
+          - gateway-service
+          - frontend-service
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ${{ matrix.service }}
+
+      - name: Compile TypeScript
+        run: npm run build
+        working-directory: ${{ matrix.service }}
+
+  docker-compose-build:
+    name: Docker Compose Build
+    runs-on: ubuntu-latest
+    needs: service-builds
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build all containers
+        run: docker compose build

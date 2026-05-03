@@ -255,7 +255,7 @@ button.wide {
   color: #edf4fa;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .sidebar .system-badge {
@@ -273,6 +273,11 @@ button.wide {
 
 .sidebar-copy {
   color: rgba(237, 244, 250, 0.76);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
 }
 
 .nav-list {
@@ -332,7 +337,7 @@ button.wide {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) repeat(4, minmax(0, 1fr));
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .summary-card {
@@ -355,21 +360,19 @@ button.wide {
 .admin-board {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 
 .board-card {
   padding: 18px;
-}
-
-.board-card.compact-note strong {
-  font-size: 1.05rem;
+  min-height: 168px;
 }
 
 .board-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 14px;
 }
 
 .dot {

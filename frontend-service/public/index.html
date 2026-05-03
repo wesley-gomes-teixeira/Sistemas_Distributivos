@@ -13,9 +13,9 @@
           <div class="panel-header">
             <div class="system-badge centered">AssetFlow</div>
             <p class="eyebrow">Acesso</p>
-            <h2>Entrar no sistema</h2>
+            <h2>Seja bem vindo!</h2>
             <p class="login-help">
-              Informe nome, email e senha para acessar o ambiente.
+              Informe seu nome, email e senha para o acesso.
             </p>
           </div>
 
@@ -26,7 +26,7 @@
             </label>
             <label class="field">
               <span>Email</span>
-              <input id="login-email" type="email" placeholder="usuario@empresa.com" required />
+              <input id="login-email" type="email" placeholder="usuario@assetflow.com" required />
             </label>
             <label class="field">
               <span>Senha</span>
@@ -46,27 +46,21 @@
     <main id="app-shell" class="workspace hidden">
       <aside class="sidebar">
         <div class="sidebar-top">
-          <div class="system-badge compact">AssetFlow</div>
-          <h2 class="sidebar-title">Painel Administrativo</h2>
+          <header class="sidebar-brand">
+            <div class="system-badge compact">AssetFlow</div>
+          </header>
+          <h2 class="sidebar-title">Management Hub</h2>
           <p class="sidebar-copy">
-            Acesso central aos modulos operacionais, com indicadores e leitura do estado atual do ambiente.
+            Central de acesso aos módulos operacionais, com indicadores em tempo real e visão do estado atual do ambiente.
           </p>
         </div>
 
-        <nav class="nav-list">
+        <nav class="nav-list" aria-label="Navegacao principal">
           <button class="nav-button active" data-view="dashboard">Dashboard</button>
           <button class="nav-button" data-view="users">Usuarios</button>
           <button class="nav-button" data-view="assets">Ativos</button>
           <button class="nav-button" data-view="tickets">Chamados</button>
         </nav>
-
-        <section class="sidebar-card">
-          <span>Etapa atual</span>
-          <strong id="sidebar-stage">Inicializando...</strong>
-          <p id="sidebar-stage-copy">
-            Este resumo e atualizado automaticamente de acordo com o progresso do ambiente.
-          </p>
-        </section>
 
         <section class="sidebar-card">
           <span>Usuario autenticado</span>
@@ -90,7 +84,6 @@
             <article class="summary-card featured">
               <span>Panorama do ambiente</span>
               <strong id="health-label">Sincronizando dados...</strong>
-              <p>Indicador consolidado do estado atual da operacao e do volume de registros.</p>
             </article>
             <article class="summary-card">
               <span>Usuarios</span>
@@ -117,7 +110,6 @@
                 <div class="dot green"></div>
               </div>
               <strong id="ticket-highlight">Nenhum chamado registrado</strong>
-              <p>Leitura rapida do volume de demandas e do estado do suporte.</p>
             </article>
             <article class="board-card">
               <div class="board-head">
@@ -125,15 +117,13 @@
                 <div class="dot blue"></div>
               </div>
               <strong id="asset-highlight">Nenhum ativo vinculado</strong>
-              <p>Visao do parque de ativos e da distribuicao atual por responsavel.</p>
             </article>
-            <article class="board-card compact-note">
+            <article class="board-card">
               <div class="board-head">
-                <span>Acao recomendada</span>
+                <span>Base operacional</span>
                 <div class="dot amber"></div>
               </div>
-              <strong id="next-step">Cadastre o primeiro usuario para iniciar o fluxo.</strong>
-              <p>O sistema orienta o proximo passo de acordo com a maturidade operacional do ambiente.</p>
+              <strong id="next-step">Ambiente em observacao e pronto para operacao assistida.</strong>
             </article>
           </section>
         </section>
@@ -141,7 +131,6 @@
         <section id="view-users" class="view">
           <div class="section-head">
             <div>
-              <p class="panel-kicker">Etapa 1</p>
               <h2>Usuarios</h2>
             </div>
             <span class="badge">Acesso e Perfis</span>
@@ -154,7 +143,7 @@
               </div>
               <div class="panel-top">
                 <h3 class="panel-subtitle">Formulario de usuario</h3>
-                <p>Cadastre, ajuste ou revise perfis administrativos e operacionais.</p>
+                
               </div>
               <form id="users-form" class="form">
                 <input type="hidden" id="user-id" />
@@ -201,7 +190,6 @@
         <section id="view-assets" class="view">
           <div class="section-head">
             <div>
-              <p class="panel-kicker">Etapa 2</p>
               <h2>Ativos</h2>
             </div>
             <span class="badge">Inventario e Vinculos</span>
@@ -254,7 +242,7 @@
             <article class="panel">
               <div class="panel-top">
                 <h3 class="panel-subtitle">Base de ativos</h3>
-                <p>Visualize a composicao do inventario por nome, tipo, status e responsavel.</p>
+                <p>Visualize a composição do inventario por nome, tipo, status e responsavel.</p>
               </div>
               <div class="toolbar">
                 <input id="assets-search" placeholder="Buscar por nome, tipo ou responsavel" />
@@ -264,7 +252,7 @@
                   <option value="em uso">Em uso</option>
                   <option value="em manutencao">Em manutencao</option>
                   <option value="reservado">Reservado</option>
-                  <option value="pendente de reassociacao">Pendente de reassociacao</option>
+                  <option value="pendente de reassociacao">Pendente de reassociacão</option>
                   <option value="desativado">Desativado</option>
                 </select>
               </div>
@@ -276,20 +264,19 @@
         <section id="view-tickets" class="view">
           <div class="section-head">
             <div>
-              <p class="panel-kicker">Etapa 3</p>
               <h2>Chamados</h2>
             </div>
             <span class="badge">Atendimento</span>
           </div>
 
           <div id="tickets-lock" class="lock-banner hidden">
-            O modulo de chamados sera liberado apos o cadastro do primeiro ativo.
+            O modulo de chamados sera liberado após o cadastro do primeiro ativo.
           </div>
 
           <div class="module-grid">
             <article class="panel">
               <div id="tickets-readonly" class="lock-banner hidden">
-                Seu perfil pode abrir chamados, mas nao pode editar nem excluir registros existentes.
+                Seu perfil pode abrir chamados, mas não pode editar nem excluir registros existentes.
               </div>
               <div class="panel-top">
                 <h3 class="panel-subtitle">Formulario de chamado</h3>
@@ -302,8 +289,8 @@
                   <input id="ticket-title" placeholder="Titulo do chamado" required />
                 </label>
                 <label class="field">
-                  <span>Descricao</span>
-                  <textarea id="ticket-description" placeholder="Descricao do problema" required></textarea>
+                  <span>Descrição</span>
+                  <textarea id="ticket-description" placeholder="Descrição do problema" required></textarea>
                 </label>
                 <label class="field">
                   <span>Status</span>
@@ -329,10 +316,10 @@
             <article class="panel">
               <div class="panel-top">
                 <h3 class="panel-subtitle">Base de chamados</h3>
-                <p>Consulte os registros de atendimento por titulo, descricao e status operacional.</p>
+                <p>Consulte os registros de atendimento por titulo, descrição e status operacional.</p>
               </div>
               <div class="toolbar">
-                <input id="tickets-search" placeholder="Buscar por titulo, descricao ou ativo" />
+                <input id="tickets-search" placeholder="Buscar por titulo, descrição ou ativo" />
                 <select id="tickets-filter-status">
                   <option value="">Todos os status</option>
                   <option value="aberto">Aberto</option>
@@ -348,7 +335,7 @@
         </section>
 
         <section class="status-bar">
-          <strong>Monitor do sistema</strong>
+          <strong>Status do Sistema</strong>
           <span id="status-message">Carregando dados...</span>
         </section>
       </section>

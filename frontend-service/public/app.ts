@@ -56,8 +56,6 @@ const healthLabel = textElement("health-label");
 const ticketHighlight = textElement("ticket-highlight");
 const assetHighlight = textElement("asset-highlight");
 const nextStep = textElement("next-step");
-const sidebarStage = textElement("sidebar-stage");
-const sidebarStageCopy = textElement("sidebar-stage-copy");
 const currentUserName = textElement("current-user-name");
 const currentUserEmail = textElement("current-user-email");
 const currentUserRole = textElement("current-user-role");
@@ -95,6 +93,25 @@ const cache: {
 };
 
 let currentView = "dashboard";
+const allowedViews = ["dashboard", "users", "assets", "tickets"] as const;
+type AppView = (typeof allowedViews)[number];
+
+function isAppView(value: string | null | undefined): value is AppView {
+  return Boolean(value && allowedViews.includes(value as AppView));
+}
+
+function getViewFromHash(): AppView {
+  const rawHash = window.location.hash.replace(/^#\/?/, "");
+  return isAppView(rawHash) ? rawHash : "dashboard";
+}
+
+function setHashView(view: AppView): void {
+  const targetHash = `#/${view}`;
+
+  if (window.location.hash !== targetHash) {
+    window.location.hash = targetHash;
+  }
+}
 
 function setStatus(message: string): void {
   statusMessage.textContent = message;
@@ -170,7 +187,7 @@ function updateSessionUI(): void {
   appShell.classList.remove("hidden");
 }
 
-function switchView(view: string): void {
+function switchView(view: AppView): void {
   currentView = view;
 
   document.querySelectorAll<HTMLElement>(".view").forEach((section) => {
@@ -189,34 +206,6 @@ function switchView(view: string): void {
   };
 
   textElement("view-title").textContent = titles[view];
-}
-
-function getProgressStage(): { label: string; description: string } {
-  if (cache.users.length === 0) {
-    return {
-      label: "Etapa 1: estruturar usuarios",
-      description: "Cadastre ao menos um usuario para habilitar o modulo de ativos."
-    };
-  }
-
-  if (cache.assets.length === 0) {
-    return {
-      label: "Etapa 2: estruturar ativos",
-      description: "O ambiente ja esta apto a receber ativos vinculados aos usuarios cadastrados."
-    };
-  }
-
-  if (cache.tickets.length === 0) {
-    return {
-      label: "Etapa 3: registrar chamados",
-      description: "Com usuarios e ativos configurados, o fluxo de atendimento ja pode ser iniciado."
-    };
-  }
-
-  return {
-    label: "Fluxo operacional concluido",
-    description: "Os tres modulos ja estao ativos. Continue atualizando os registros operacionais."
-  };
 }
 
 function updateNavigationLocks(): void {
@@ -258,12 +247,34 @@ function updateNavigationLocks(): void {
   inputElement("ticket-asset-id").disabled = !canCreateTickets();
 
   if (!usersReady && currentView === "assets") {
+    setHashView("users");
     switchView("users");
   }
 
   if (!assetsReady && currentView === "tickets") {
-    switchView(usersReady ? "assets" : "users");
+    const fallbackView: AppView = usersReady ? "assets" : "users";
+    setHashView(fallbackView);
+    switchView(fallbackView);
   }
+}
+
+function syncViewFromHash(): void {
+  const requestedView = getViewFromHash();
+
+  if (requestedView === "assets" && cache.users.length === 0) {
+    setHashView("users");
+    switchView("users");
+    return;
+  }
+
+  if (requestedView === "tickets" && cache.assets.length === 0) {
+    const fallbackView: AppView = cache.users.length > 0 ? "assets" : "users";
+    setHashView(fallbackView);
+    switchView(fallbackView);
+    return;
+  }
+
+  switchView(requestedView);
 }
 
 function refreshDashboard(): void {
@@ -280,7 +291,7 @@ function refreshDashboard(): void {
     healthLabel.textContent = "Ambiente pronto para a configuracao inicial";
     ticketHighlight.textContent = "Nenhum chamado registrado";
     assetHighlight.textContent = "Nenhum ativo vinculado";
-    nextStep.textContent = "Cadastre o primeiro usuario para iniciar a operacao.";
+    nextStep.textContent = "Ambiente preparado para iniciar cadastros e acompanhar a operacao.";
   } else {
     healthLabel.textContent = `${users.length + assets.length + tickets.length} registros ativos no ambiente`;
     ticketHighlight.textContent =
@@ -288,20 +299,11 @@ function refreshDashboard(): void {
     assetHighlight.textContent =
       assets.length > 0 ? `${assets.length} ativos registrados no inventario` : "Inventario ainda nao iniciado";
 
-    if (users.length === 0) {
-      nextStep.textContent = "Cadastre usuarios para habilitar a vinculacao de ativos.";
-    } else if (assets.length === 0) {
-      nextStep.textContent = "Cadastre ativos para associar equipamentos aos usuarios.";
-    } else if (tickets.length === 0) {
-      nextStep.textContent = "Registre chamados para acompanhar incidentes, solicitacoes e manutencoes.";
-    } else {
-      nextStep.textContent = "Estrutura inicial concluida. Continue atualizando os modulos conforme a operacao.";
-    }
+    nextStep.textContent =
+      users.length > 0 && assets.length > 0 && tickets.length > 0
+        ? "Estrutura operacional consolidada para acompanhamento continuo."
+        : "Base operacional em formacao, com modulos ativos para cadastro e consulta.";
   }
-
-  const stage = getProgressStage();
-  sidebarStage.textContent = stage.label;
-  sidebarStageCopy.textContent = stage.description;
 }
 
 async function request(path: string, options: RequestInit = {}): Promise<any> {
@@ -497,6 +499,7 @@ async function loadUsers(): Promise<void> {
           inputElement("user-email").value = user.email;
           selectElement("user-role").value = user.role;
           setStatus(`Edicao do usuario #${user.id} carregada com sucesso.`);
+          setHashView("users");
           switchView("users");
         },
         async () => {
@@ -542,6 +545,7 @@ async function loadAssets(): Promise<void> {
           selectElement("asset-status").value = asset.status;
           inputElement("asset-user-id").value = asset.userId === null ? "" : String(asset.userId);
           setStatus(`Edicao do ativo #${asset.id} carregada com sucesso.`);
+          setHashView("assets");
           switchView("assets");
         },
         async () => {
@@ -587,6 +591,7 @@ async function loadTickets(): Promise<void> {
           selectElement("ticket-status").value = ticket.status;
           inputElement("ticket-asset-id").value = ticket.assetId === null ? "" : String(ticket.assetId);
           setStatus(`Edicao do chamado #${ticket.id} carregada com sucesso.`);
+          setHashView("tickets");
           switchView("tickets");
         },
         async () => {
@@ -650,6 +655,7 @@ formElement("login-form").addEventListener("submit", async (event) => {
     });
     loginError.textContent = "";
     updateSessionUI();
+    setHashView("dashboard");
     switchView("dashboard");
     await loadAll();
   } catch (error) {
@@ -689,6 +695,7 @@ buttonElement("register-button").addEventListener("click", async () => {
     });
     loginError.textContent = "";
     updateSessionUI();
+    setHashView("dashboard");
     switchView("dashboard");
     await loadAll();
   } catch (error) {
@@ -705,7 +712,10 @@ buttonElement("logout-button").addEventListener("click", () => {
 document.querySelectorAll<HTMLButtonElement>(".nav-button").forEach((button) => {
   button.addEventListener("click", () => {
     if (!button.disabled) {
-      switchView(button.getAttribute("data-view") || "dashboard");
+      const targetView = button.getAttribute("data-view");
+      const nextView: AppView = isAppView(targetView) ? targetView : "dashboard";
+      setHashView(nextView);
+      switchView(nextView);
     }
   });
 });
@@ -758,6 +768,7 @@ formElement("assets-form").addEventListener("submit", async (event) => {
 
   if (cache.users.length === 0) {
     setStatus("Cadastre ao menos um usuario antes de registrar ativos.");
+    setHashView("users");
     switchView("users");
     return;
   }
@@ -792,7 +803,9 @@ formElement("tickets-form").addEventListener("submit", async (event) => {
 
   if (cache.assets.length === 0) {
     setStatus("Cadastre ao menos um ativo antes de registrar chamados.");
-    switchView(cache.users.length > 0 ? "assets" : "users");
+    const fallbackView: AppView = cache.users.length > 0 ? "assets" : "users";
+    setHashView(fallbackView);
+    switchView(fallbackView);
     return;
   }
 
@@ -854,7 +867,17 @@ document.querySelectorAll<HTMLElement>("[data-clear]").forEach((button) => {
 
 updateSessionUI();
 
+window.addEventListener("hashchange", () => {
+  if (getSession()) {
+    syncViewFromHash();
+  }
+});
+
 if (getSession()) {
-  switchView("dashboard");
+  if (!window.location.hash) {
+    setHashView("dashboard");
+  }
+
+  syncViewFromHash();
   loadAll();
 }

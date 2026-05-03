@@ -226,3 +226,25 @@ node server.js
 - Quando um ativo e removido, o `tickets-service` recebe o evento e atualiza os chamados impactados.
 - O frontend passou a oferecer filtros, busca textual e comportamento adaptado ao perfil autenticado.
 - Cada servico e independente, ideal para aprendizado e apresentacao academica.
+
+## CI/CD com GitHub Actions
+
+O projeto possui workflows em `.github/workflows` para automatizar validacao e entrega:
+
+- `ci.yml`: instala dependencias, compila os cinco servicos em TypeScript e executa `docker compose build`.
+- `cd.yml`: em pushes para `main` ou `master`, gera e publica as imagens Docker no `GitHub Container Registry (ghcr.io)`.
+
+As imagens publicadas seguem este padrao:
+
+- `ghcr.io/<owner>/assetflow-users-service`
+- `ghcr.io/<owner>/assetflow-assets-service`
+- `ghcr.io/<owner>/assetflow-tickets-service`
+- `ghcr.io/<owner>/assetflow-gateway-service`
+- `ghcr.io/<owner>/assetflow-frontend-service`
+
+Cada imagem recebe as tags:
+
+- `latest`
+- `sha-<commit>`
+
+O workflow de CD usa o `GITHUB_TOKEN` do proprio GitHub Actions para publicar no GHCR.

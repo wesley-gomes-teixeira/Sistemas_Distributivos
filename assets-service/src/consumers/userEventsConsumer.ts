@@ -8,7 +8,7 @@ async function startUserEventsConsumer(): Promise<void> {
 
     if (impactedAssets.length > 0) {
       console.log(
-        `Assets Service atualizou ${impactedAssets.length} ativo(s) apos remocao do usuario ${user.id}.`
+        `Assets Service atualizou ${impactedAssets.length} ativo(s) apos remoção do usuario ${user.id}.`
       );
     }
   });
