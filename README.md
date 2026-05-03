@@ -248,3 +248,84 @@ Cada imagem recebe as tags:
 - `sha-<commit>`
 
 O workflow de CD usa o `GITHUB_TOKEN` do proprio GitHub Actions para publicar no GHCR.
+
+## Deploy no Railway
+
+Este repositorio e um monorepo. Cada servico precisa ser criado separadamente no Railway com seu proprio diretório raiz.
+
+### Servicos de aplicacao
+
+- `frontend-service`
+  - `Root Directory`: `frontend-service`
+  - `Dockerfile Path`: `Dockerfile`
+- `gateway-service`
+  - `Root Directory`: `gateway-service`
+  - `Dockerfile Path`: `Dockerfile`
+- `users-service`
+  - `Root Directory`: `users-service`
+  - `Dockerfile Path`: `Dockerfile`
+- `assets-service`
+  - `Root Directory`: `assets-service`
+  - `Dockerfile Path`: `Dockerfile`
+- `tickets-service`
+  - `Root Directory`: `tickets-service`
+  - `Dockerfile Path`: `Dockerfile`
+
+Nao aponte um servico para a raiz do repositorio (`/`). O Railpack nao encontra um aplicativo executavel ali.
+
+### Bancos e broker
+
+Crie tambem:
+
+- `users-db`
+- `assets-db`
+- `tickets-db`
+- `rabbitmq`
+
+### Variaveis de ambiente
+
+`users-service`
+
+- `PORT=3001`
+- `DB_HOST=<host do users-db>`
+- `DB_PORT=<porta do users-db>`
+- `DB_USER=<usuario do users-db>`
+- `DB_PASSWORD=<senha do users-db>`
+- `DB_NAME=users_db`
+- `RABBITMQ_URL=<url AMQP do rabbitmq>`
+
+`assets-service`
+
+- `PORT=3002`
+- `DB_HOST=<host do assets-db>`
+- `DB_PORT=<porta do assets-db>`
+- `DB_USER=<usuario do assets-db>`
+- `DB_PASSWORD=<senha do assets-db>`
+- `DB_NAME=assets_db`
+- `RABBITMQ_URL=<url AMQP do rabbitmq>`
+
+`tickets-service`
+
+- `PORT=3003`
+- `DB_HOST=<host do tickets-db>`
+- `DB_PORT=<porta do tickets-db>`
+- `DB_USER=<usuario do tickets-db>`
+- `DB_PASSWORD=<senha do tickets-db>`
+- `DB_NAME=tickets_db`
+- `RABBITMQ_URL=<url AMQP do rabbitmq>`
+
+`gateway-service`
+
+- `PORT=3000`
+- `JWT_SECRET=<segredo forte>`
+- `USERS_SERVICE_URL=<url interna do users-service>`
+- `ASSETS_SERVICE_URL=<url interna do assets-service>`
+- `TICKETS_SERVICE_URL=<url interna do tickets-service>`
+
+`frontend-service`
+
+- `PORT=8080`
+- `GATEWAY_BASE_URL=https://<dominio-publico-do-gateway>/api`
+- `AUTH_BASE_URL=https://<dominio-publico-do-gateway>/auth`
+
+O frontend agora le essas URLs em tempo de execucao por meio de `/config.js`, entao voce pode usar a mesma imagem localmente e no Railway sem editar o codigo a cada deploy.

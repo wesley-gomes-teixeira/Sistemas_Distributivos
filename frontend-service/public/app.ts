@@ -32,8 +32,9 @@ interface ApiError extends Error {
   status?: number;
 }
 
-const gatewayBaseUrl = "http://localhost:3000/api";
-const authBaseUrl = "http://localhost:3000/auth";
+const runtimeConfig = window.__ASSETFLOW_CONFIG__ || {};
+const gatewayBaseUrl = (runtimeConfig.gatewayBaseUrl || "http://localhost:3000/api").replace(/\/+$/, "");
+const authBaseUrl = (runtimeConfig.authBaseUrl || "http://localhost:3000/auth").replace(/\/+$/, "");
 const sessionKey = "assetflow-session";
 
 const textElement = (id: string) => document.getElementById(id) as HTMLElement;
