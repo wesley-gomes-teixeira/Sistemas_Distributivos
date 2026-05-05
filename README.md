@@ -119,14 +119,27 @@ rabbitmq
 - Painel de gerenciamento: `15672`
 - Funcao: transportar eventos entre os microsservicos
 
-### Adminer Service
-
-- Porta: `8081`
-- Funcao: visualizar os bancos PostgreSQL pelo navegador
-
 ## Como rodar com Docker
 
-O projeto agora possui um [docker-compose.yml](C:\Users\wesle\OneDrive\Documentos\Pessoal\Dev\distri\docker-compose.yml) que sobe os tres microsservicos e os tres bancos juntos.
+O projeto agora possui um `docker-compose.yml` com:
+
+- `1` banco PostgreSQL
+- `1` web service
+
+Dentro do web service continuam rodando internamente:
+
+- `users-service`
+- `assets-service`
+- `tickets-service`
+- `gateway-service`
+- `frontend-service`
+
+Para ficar compativel com Render:
+
+- o frontend responde na unica porta publica
+- `/api` e `/auth` sao encaminhados internamente para o gateway
+- todos os modulos usam o mesmo banco PostgreSQL
+- o RabbitMQ deixa de ser obrigatorio nesse modo
 
 ```bash
 docker compose up --build
@@ -142,32 +155,13 @@ E o frontend fica disponivel em:
 
 - `http://localhost:8080`
 
-E o Adminer fica disponivel em:
+Se quiser acessar o PostgreSQL a partir da maquina host, use:
 
-- `http://localhost:8081`
-
-E o painel do RabbitMQ fica disponivel em:
-
-- `http://localhost:15672`
-
-Credenciais padrao do painel:
-
-- Usuario: `guest`
-- Senha: `guest`
-
-Para entrar no Adminer, use:
-
-- Sistema: `PostgreSQL`
-- Servidor:
-  - `users-db` para `users_db`
-  - `assets-db` para `assets_db`
-  - `tickets-db` para `tickets_db`
+- Host: `localhost`
+- Porta: `5432`
 - Usuario: `postgres`
 - Senha: `postgres`
-- Banco:
-  - `users_db`
-  - `assets_db`
-  - `tickets_db`
+- Banco: `assetflow`
 
 ## Como rodar sem Docker
 
@@ -216,14 +210,12 @@ node server.js
 ## Observacoes
 
 - Todos os microsservicos usam `express.json()` para entrada e saida em JSON.
-- Cada servico tem seu proprio banco PostgreSQL.
+- No modo compativel com Render, todos os servicos compartilham o mesmo banco PostgreSQL.
 - As tabelas sao criadas automaticamente na inicializacao de cada microsservico.
 - O frontend consome o gateway, e o gateway encaminha as requisicoes para os microsservicos corretos.
 - O acesso ao frontend agora usa autenticacao real via `gateway-service`, com token JWT protegendo as rotas `/api`.
 - O gateway aplica regras de negocio entre dominios, como validacao de status, verificacao de vinculos e confirmacao de exclusoes com impacto.
-- O RabbitMQ e usado para comunicacao assincrona entre os servicos por meio do exchange `assetflow.events`.
-- Quando um usuario e removido, o `assets-service` recebe o evento e desvincula os ativos afetados.
-- Quando um ativo e removido, o `tickets-service` recebe o evento e atualiza os chamados impactados.
+- No modo compativel com Render, o RabbitMQ pode ser desabilitado e os ajustes entre dominios passam a ocorrer de forma sincrona.
 - O frontend passou a oferecer filtros, busca textual e comportamento adaptado ao perfil autenticado.
 - Cada servico e independente, ideal para aprendizado e apresentacao academica.
 
@@ -273,46 +265,38 @@ Este repositorio e um monorepo. Cada servico precisa ser criado separadamente no
 
 Nao aponte um servico para a raiz do repositorio (`/`). O Railpack nao encontra um aplicativo executavel ali.
 
-### Bancos e broker
+### Banco
 
-Crie tambem:
-
-- `users-db`
-- `assets-db`
-- `tickets-db`
-- `rabbitmq`
+Crie apenas um banco PostgreSQL no Render.
 
 ### Variaveis de ambiente
 
 `users-service`
 
 - `PORT=3001`
-- `DB_HOST=<host do users-db>`
-- `DB_PORT=<porta do users-db>`
-- `DB_USER=<usuario do users-db>`
-- `DB_PASSWORD=<senha do users-db>`
-- `DB_NAME=users_db`
-- `RABBITMQ_URL=<url AMQP do rabbitmq>`
+- `DB_HOST=<host do postgres>`
+- `DB_PORT=<porta do postgres>`
+- `DB_USER=<usuario do postgres>`
+- `DB_PASSWORD=<senha do postgres>`
+- `DB_NAME=<nome do banco compartilhado>`
 
 `assets-service`
 
 - `PORT=3002`
-- `DB_HOST=<host do assets-db>`
-- `DB_PORT=<porta do assets-db>`
-- `DB_USER=<usuario do assets-db>`
-- `DB_PASSWORD=<senha do assets-db>`
-- `DB_NAME=assets_db`
-- `RABBITMQ_URL=<url AMQP do rabbitmq>`
+- `DB_HOST=<host do postgres>`
+- `DB_PORT=<porta do postgres>`
+- `DB_USER=<usuario do postgres>`
+- `DB_PASSWORD=<senha do postgres>`
+- `DB_NAME=<nome do banco compartilhado>`
 
 `tickets-service`
 
 - `PORT=3003`
-- `DB_HOST=<host do tickets-db>`
-- `DB_PORT=<porta do tickets-db>`
-- `DB_USER=<usuario do tickets-db>`
-- `DB_PASSWORD=<senha do tickets-db>`
-- `DB_NAME=tickets_db`
-- `RABBITMQ_URL=<url AMQP do rabbitmq>`
+- `DB_HOST=<host do postgres>`
+- `DB_PORT=<porta do postgres>`
+- `DB_USER=<usuario do postgres>`
+- `DB_PASSWORD=<senha do postgres>`
+- `DB_NAME=<nome do banco compartilhado>`
 
 `gateway-service`
 
@@ -324,8 +308,8 @@ Crie tambem:
 
 `frontend-service`
 
-- `PORT=8080`
-- `GATEWAY_BASE_URL=https://<dominio-publico-do-gateway>/api`
-- `AUTH_BASE_URL=https://<dominio-publico-do-gateway>/auth`
+- `PORT=<porta publica do Render>`
+- `GATEWAY_BASE_URL=/api`
+- `AUTH_BASE_URL=/auth`
 
 O frontend agora le essas URLs em tempo de execucao por meio de `/config.js`, entao voce pode usar a mesma imagem localmente e no Railway sem editar o codigo a cada deploy.

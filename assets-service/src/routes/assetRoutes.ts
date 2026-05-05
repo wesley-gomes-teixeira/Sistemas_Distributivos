@@ -8,5 +8,6 @@ router.get("/assets", assetController.getAssets);
 router.post("/assets", assetController.createAsset);
 router.put("/assets/:id", assetController.updateAsset);
 router.delete("/assets/:id", assetController.deleteAsset);
+router.post("/internal/users/:userId/unassign-assets", assetController.unassignAssetsFromUser);
 
 module.exports = router;

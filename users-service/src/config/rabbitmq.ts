@@ -4,7 +4,16 @@ const amqp = require("amqplib");
 const exchangeName = "assetflow.events";
 let channel: any;
 
+function isRabbitDisabled(): boolean {
+  return process.env.DISABLE_RABBITMQ === "true" || !process.env.RABBITMQ_URL;
+}
+
 async function waitForRabbit(maxRetries = 20, delayMs = 3000): Promise<void> {
+  if (isRabbitDisabled()) {
+    console.log("RabbitMQ desabilitado para este ambiente.");
+    return;
+  }
+
   const rabbitUrl = process.env.RABBITMQ_URL || "amqp://localhost:5672";
 
   for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
@@ -27,6 +36,10 @@ async function waitForRabbit(maxRetries = 20, delayMs = 3000): Promise<void> {
 }
 
 async function publishEvent(routingKey: string, payload: unknown): Promise<void> {
+  if (isRabbitDisabled()) {
+    return;
+  }
+
   if (!channel) {
     throw new Error("Canal RabbitMQ ainda nao inicializado.");
   }

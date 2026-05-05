@@ -104,9 +104,34 @@ async function deleteTicket(req: RequestLike, res: ResponseLike): Promise<Respon
   }
 }
 
+async function markTicketsWithoutAsset(req: RequestLike, res: ResponseLike): Promise<ResponseLike> {
+  try {
+    const assetId = Number(req.params.assetId);
+
+    if (Number.isNaN(assetId)) {
+      return res.status(400).json({
+        message: "O assetId informado e invalido."
+      });
+    }
+
+    const impactedTickets = await ticketModel.markTicketsWithoutAsset(assetId);
+
+    return res.status(200).json({
+      message: "Chamados vinculados ao ativo foram atualizados com sucesso.",
+      tickets: impactedTickets
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Erro ao atualizar chamados vinculados ao ativo.",
+      details: getErrorMessage(error)
+    });
+  }
+}
+
 module.exports = {
   getTickets,
   createTicket,
   updateTicket,
-  deleteTicket
+  deleteTicket,
+  markTicketsWithoutAsset
 };

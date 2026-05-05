@@ -1,0 +1,8 @@
+**/node_modules
+**/dist
+.git
+.github
+README.md
+ARQUITETURA.md
+docker-compose.improved.yml
+cloudbuild.yaml

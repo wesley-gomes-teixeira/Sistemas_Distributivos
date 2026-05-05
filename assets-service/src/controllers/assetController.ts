@@ -98,9 +98,34 @@ async function deleteAsset(req: RequestLike, res: ResponseLike): Promise<Respons
   }
 }
 
+async function unassignAssetsFromUser(req: RequestLike, res: ResponseLike): Promise<ResponseLike> {
+  try {
+    const userId = Number(req.params.userId);
+
+    if (Number.isNaN(userId)) {
+      return res.status(400).json({
+        message: "O userId informado e invalido."
+      });
+    }
+
+    const impactedAssets = await assetModel.unassignAssetsFromUser(userId);
+
+    return res.status(200).json({
+      message: "Ativos vinculados ao usuario foram atualizados com sucesso.",
+      assets: impactedAssets
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Erro ao atualizar ativos vinculados ao usuario.",
+      details: getErrorMessage(error)
+    });
+  }
+}
+
 module.exports = {
   getAssets,
   createAsset,
   updateAsset,
-  deleteAsset
+  deleteAsset,
+  unassignAssetsFromUser
 };
